@@ -1,63 +1,25 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { createOllama } from 'ollama-ai-provider'
-import { createOpenAI } from '@ai-sdk/openai'
-import { google } from '@ai-sdk/google'
-import { anthropic } from '@ai-sdk/anthropic'
+import { createGroq } from '@ai-sdk/groq' // Hypothetical import for Groq SDK
 import { CoreMessage } from 'ai'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getModel(useSubModel = false) {
-  const ollamaBaseUrl = process.env.OLLAMA_BASE_URL + '/api'
-  const ollamaModel = process.env.OLLAMA_MODEL
-  const ollamaSubModel = process.env.OLLAMA_SUB_MODEL
-  const openaiApiBase = process.env.OPENAI_API_BASE
-  const openaiApiKey = process.env.OPENAI_API_KEY
-  let openaiApiModel = process.env.OPENAI_API_MODEL || 'gpt-4o'
-  const googleApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
-  const anthropicApiKey = process.env.ANTHROPIC_API_KEY
+export function getModel() {
+  const groqBaseUrl = process.env.GROQ_BASE_URL
+  const groqApiKey = process.env.GROQ_API_KEY
+  const groqModel = process.env.GROQ_MODEL
 
-  if (
-    !(ollamaBaseUrl && ollamaModel) &&
-    !openaiApiKey &&
-    !googleApiKey &&
-    !anthropicApiKey
-  ) {
+  if (!(groqBaseUrl && groqApiKey && groqModel)) {
     throw new Error(
-      'Missing environment variables for Ollama, OpenAI, Google or Anthropic'
+      'Missing environment variables for Groq'
     )
   }
-  // Ollama
-  if (ollamaBaseUrl && ollamaModel) {
-    const ollama = createOllama({ baseURL: ollamaBaseUrl })
 
-    if (useSubModel && ollamaSubModel) {
-      return ollama(ollamaSubModel)
-    }
-
-    return ollama(ollamaModel)
-  }
-
-  if (googleApiKey) {
-    return google('models/gemini-1.5-pro-latest')
-  }
-
-  if (anthropicApiKey) {
-    return anthropic('claude-3-5-sonnet-20240620')
-  }
-
-  // Fallback to OpenAI instead
-
-  const openai = createOpenAI({
-    baseURL: openaiApiBase, // optional base URL for proxies etc.
-    apiKey: openaiApiKey, // optional API key, default to env property OPENAI_API_KEY
-    organization: '' // optional organization
-  })
-
-  return openai.chat(openaiApiModel)
+  const groq = createGroq({ baseURL: groqBaseUrl, apiKey: groqApiKey })
+  return groq(groqModel)
 }
 
 /**

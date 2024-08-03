@@ -1,11 +1,12 @@
-import { createStreamableUI } from 'ai/rsc'
-import { retrieveTool } from './retrieve'
-import { searchTool } from './search'
-import { videoSearchTool } from './video-search'
+import { createStreamableUI } from 'ai/rsc';
+import { retrieveTool } from './retrieve';
+import { searchTool } from './search';
+import { videoSearchTool } from './video-search';
+import { groqTool } from './groq';  // Import the new Groq tool
 
 export interface ToolProps {
-  uiStream: ReturnType<typeof createStreamableUI>
-  fullResponse: string
+  uiStream: ReturnType<typeof createStreamableUI>;
+  fullResponse: string;
 }
 
 export const getTools = ({ uiStream, fullResponse }: ToolProps) => {
@@ -18,14 +19,21 @@ export const getTools = ({ uiStream, fullResponse }: ToolProps) => {
       uiStream,
       fullResponse
     })
-  }
+  };
 
   if (process.env.SERPER_API_KEY) {
     tools.videoSearch = videoSearchTool({
       uiStream,
       fullResponse
-    })
+    });
   }
 
-  return tools
-}
+  if (process.env.GROQ_API_KEY) {
+    tools.groq = groqTool({
+      uiStream,
+      fullResponse
+    });
+  }
+
+  return tools;
+};

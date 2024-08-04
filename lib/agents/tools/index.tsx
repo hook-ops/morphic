@@ -2,7 +2,7 @@ import { createStreamableUI } from 'ai/rsc';
 import { retrieveTool } from './retrieve';
 import { searchTool } from './search';
 import { videoSearchTool } from './video-search';
-import { groqTool } from './groq';  // Import the new Groq tool
+import { getGroqResponse } from '../tools/groqclient';  // Import the new Groq tool
 
 export interface ToolProps {
   uiStream: ReturnType<typeof createStreamableUI>;
@@ -29,7 +29,7 @@ export const getTools = ({ uiStream, fullResponse }: ToolProps) => {
   }
 
   if (process.env.GROQ_API_KEY) {
-    tools.groq = groqTool({
+    tools.groq = getGroqResponse({
       uiStream,
       fullResponse
     });
